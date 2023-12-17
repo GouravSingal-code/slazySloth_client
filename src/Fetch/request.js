@@ -12,6 +12,7 @@ export const fetchData = async (url, options) => {
 };
 
 export const postRequest = async (url  , bodyObject) => {
+  console.log(bodyObject);
   const options = {
     method: 'POST',
     headers: {
@@ -22,8 +23,8 @@ export const postRequest = async (url  , bodyObject) => {
   };
 
   try {
-    const data = await fetchData(url, options);
-    console.log('POST Response:', data);
+    const postResponse = await fetchData(url, options);
+    return postResponse;
   } catch (error) {
     // Handle the error
   }
@@ -31,8 +32,8 @@ export const postRequest = async (url  , bodyObject) => {
 
 export const getRequest = async (url) => {
   try {
-    const data = await fetchData(url);
-    console.log('GET Response:', data);
+    const getResponse = await fetchData(url);
+    return getResponse;
   } catch (error) {
     // Handle the error
   }

@@ -53,6 +53,9 @@ const Article = () => {
         marginBottom: "2%",
         textAlign: "center",
         padding: "1%",
+        paddingLeft:"5%",
+        paddingRight:"5%",
+        border:"0.5px solid pink"
       }}
     >
       <div>

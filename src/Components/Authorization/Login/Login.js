@@ -12,7 +12,12 @@ import Grid from "@mui/material/Grid";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import backgroundImage from "C:/Users/GOURAV/Desktop/youtube/slazysloth/client/slother-client/src/slazysloth.jpg";
+import backgroundImage from "../../../slazysloth.jpg";
+import {v4 as uuidv4} from "uuid";
+import {getRequest, postRequest} from "../../../Fetch/request";
+import {isValidEmail , isStrongPassword} from "../../../Utils/CheckEmailAndPassword";
+import Popup from "../../Popup/PopUp";
+import PopUp from "../../Popup/PopUp";
 
 function Copyright(props) {
   return (
@@ -36,19 +41,55 @@ function Copyright(props) {
 
 const defaultTheme = createTheme();
 
-export default function Login({onLogin}) {
-  const handleSubmit = (event) => {
+export default function Login({handleLogin}) {
+
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
+  const [popUpTitle, setPopUpTitle] = React.useState("");
+  const [popUpMsg , setPopUpMsg] = React.useState("");
+  const [popUpColor , setPopUpColor] = React.useState("red");
+
+  const setPopProps = (title , msg, color) =>{
+    setPopUpMsg(msg);
+    setPopUpTitle(title);
+    setPopUpColor(color);
+  }
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
-    onLogin();
+    const email = data.get("email");
+    const password = data.get("password");
+
+    if( !isValidEmail(email) ){
+      setPopProps("Alert" , "email format is not correct", "red");
+      handleOpen();
+    }else if( !isStrongPassword(password) ){
+      setPopProps("Alert" , "password should have at least 8 characters and contains a mix of letters, numbers, and symbols", "red");
+      handleOpen();
+    } else {
+      const userObject = {
+        email: email,
+        password: password,
+      };
+      let postResponse = await postRequest("http://localhost:8000/login", userObject);
+      postResponse = JSON.parse(postResponse);
+      if( postResponse.status === "200" ){
+        localStorage.setItem('profileObject',JSON.stringify(postResponse["_doc"]));
+        handleLogin();
+        window.location.href = '/';
+      }else{
+        setPopProps("Alert", postResponse.message, "red");   // setPopProps("Alert" , "email format is not correct");
+        handleOpen();
+      }
+    }
   };
 
   return (
     <ThemeProvider theme={defaultTheme}>
+      <PopUp open={open} handleClose={handleClose} popUpTitle={popUpTitle} popUpMsg={popUpMsg} popUpColor={popUpColor} />
       <Grid container component="main" sx={{ height: "100vh" }}>
         <CssBaseline />
         <Grid

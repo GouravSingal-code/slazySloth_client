@@ -12,7 +12,7 @@ import Grid from "@mui/material/Grid";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import backgroundImage from "C:/Users/GOURAV/Desktop/youtube/slazysloth/client/slother-client/src/slazysloth.jpg";
+import backgroundImage from "../../../slazysloth.jpg";
 
 function Copyright(props) {
   return (

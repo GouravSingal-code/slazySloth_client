@@ -17,6 +17,10 @@ export default function Bottombar() {
             : theme.palette.grey[500],
         py: 6,
       }}
+      style={{
+        position:"relative",
+        width:"100%"
+      }}
     >
       <Container
         maxWidth={false}

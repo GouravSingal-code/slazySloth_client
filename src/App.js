@@ -9,26 +9,37 @@ import Login from "./Components/Authorization/Login/Login";
 import Register from "./Components/Authorization/Register/Register";
 import SetPassword from "./Components/Authorization/Password/SetPassword";
 import Article from "./Components/Article/Article"
+import './App.css';
 
 
 function App() {
 
-  const [isLoggedIn, setLoggedIn] = useState(false);
+
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    // Retrieve authentication status from localStorage on component mount
+    return localStorage.getItem('isAuthenticated') === 'true';
+  });
+
+  useEffect(() => {
+    // Update localStorage when isAuthenticated changes
+    localStorage.setItem('isAuthenticated', isAuthenticated);
+  }, [isAuthenticated]);
 
   const handleLogin = () => {
-    setLoggedIn(true);
+    setIsAuthenticated(true);
   };
 
   const handleLogout = () => {
-    setLoggedIn(false);
-  }
+    setIsAuthenticated(false);
+  };
 
 
   return (
     <div>
-    {isLoggedIn ? (
+    {isAuthenticated ? (
       <Router>
       <div
+          className="app-container"
       >
         <Navbar onLogout={handleLogout} />
         <div>
@@ -39,15 +50,15 @@ function App() {
               <Route path="/create" element={<Article />} />
             </Routes>
         </div>
-        <Bottombar style={{marginTop:"100vh"}} />
+        {/*<Bottombar className="bottomBar"/>*/}
       </div>
     </Router>
     ) : (
       <div>
       <Router>
       <Routes>
-          <Route exact path="/" element={ <Login onLogin={handleLogin} />} />
-          <Route path="/register" element={<Register onLogin={handleLogin}/>} />
+          <Route exact path="/" element={ <Login handleLogin={handleLogin} />} />
+          <Route path="/register" element={<Register handleLogin={handleLogin} />} />
           <Route path="/setPassword" element={<SetPassword/>} />
       </Routes>
       </Router>

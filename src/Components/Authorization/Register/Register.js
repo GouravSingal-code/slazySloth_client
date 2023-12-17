@@ -12,8 +12,11 @@ import Grid from "@mui/material/Grid";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import backgroundImage from "C:/Users/GOURAV/Desktop/youtube/slazysloth/client/slother-client/src/slazysloth.jpg";
-import {postRequest} from "../../../Fetch/request"
+import backgroundImage from "../../../slazysloth.jpg";
+import {getRequest, postRequest} from "../../../Fetch/request"
+import { v4 as uuidv4 } from 'uuid';
+import {isStrongPassword, isValidEmail} from "../../../Utils/CheckEmailAndPassword";
+import Popup from "../../Popup/PopUp";
 
 function Copyright(props) {
   return (
@@ -37,18 +40,87 @@ function Copyright(props) {
 
 const defaultTheme = createTheme();
 
-export default function Register({onLogin}) {
-  const handleSubmit = (event) => {
+export default function Register({handleLogin}) {
+
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
+  const [popUpTitle, setPopUpTitle] = React.useState("");
+  const [popUpMsg , setPopUpMsg] = React.useState("");
+  const [popUpColor , setPopUpColor] = React.useState("red");
+
+  const setPopProps = (title , msg, color) =>{
+    setPopUpMsg(msg);
+    setPopUpTitle(title);
+    setPopUpColor(color);
+  }
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const dataObject = {
-      email: data.get("email"),
-      password: data.get("password"),
-    };
-    console.log(data);
-    postRequest("https//localhost:8000/login", dataObject);
-    onLogin();
+    const email = data.get("email");
+    const password = data.get("password");
+
+    if( !isValidEmail(email) ){
+      setPopProps("Alert" , "email format is not correct" , "red");   // setPopProps("Alert" , "email format is not correct");
+      handleOpen();
+    }else if( !isStrongPassword(password) ){
+      setPopProps("Alert" , "password should have at least 8 characters and contains a mix of letters, numbers, and symbols", "red");
+      handleOpen();
+    } else {
+      const userObject = {
+        name:"",
+        email:email,
+        password: password,
+        pic : null,
+        state:"",
+        country:"",
+        designation:"",
+        company:"",
+        college:"",
+        links:[
+            {
+          "name":"github",
+              "tag":"personal",
+              "link":""
+        },
+          {
+            "name":"linkedin",
+            "tag":"personal",
+            "link":""
+        },
+          {
+            "name":"twitter",
+            "tag":"personal",
+            "link":""
+        },
+          {
+            "name":"instagram",
+            "tag":"personal",
+            "link":""
+        },
+          {
+            "name":"facebook",
+            "tag":"personal",
+            "link":""
+        }
+        ]
+      };
+      let postResponse = await postRequest("http://localhost:8000/register", userObject);
+      postResponse = JSON.parse(postResponse);
+      if( postResponse.status === "200" ){
+        localStorage.setItem('profileObject',JSON.stringify(postResponse["_doc"]));
+        handleLogin();
+     //   window.location.href = '/';
+      }else{
+        setPopProps("Alert", postResponse.message, "red");   // setPopProps("Alert" , "email format is not correct");
+        handleOpen();
+      }
+    }
   };
+
+
 
   return (
     <ThemeProvider theme={defaultTheme}>
